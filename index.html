@@ -149,6 +149,7 @@
   }
   .settings[hidden]{display:none;}
   .setting-row{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;}
+  .setting-row[hidden]{display:none;}
   .setting-row .label{
     font-family:var(--font-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;
     color:var(--ink-dim);margin-right:.3rem;min-width:6.4rem;
@@ -167,6 +168,17 @@
   .chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-strong);}
   .chip:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
   .chip-all{font-family:var(--font-body);font-size:.8125rem;text-decoration:underline;color:var(--ink-dim);background:none;border:none;cursor:pointer;padding:.2rem;}
+
+  .settings-divider{height:1px;background:var(--border);margin:.2rem 0;}
+  .settings-heading{
+    font-family:var(--font-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-dim);font-weight:700;
+  }
+  .tense-group[hidden]{display:none;}
+  .tense-group.disabled{opacity:.4;pointer-events:none;}
+  .tense-group .chip-scroll{max-height:none;}
+  .more-toggle{margin-top:.15rem;}
+  .transitions-row .chip-scroll{max-height:none;}
 
   .verb-picker{flex:1;min-width:230px;}
   .verb-filter{
@@ -364,7 +376,6 @@
 </style>
 </head>
 <body>
-
 <div class="wrap">
   <h1>Yachashaq</h1>
   <hr class="divider">
@@ -400,18 +411,60 @@
           </div>
         </div>
       </div>
-      <div class="setting-row" id="tense-row">
-        <span class="label">Tiempos</span>
-      </div>
+      <div class="settings-divider"></div>
+      <div class="settings-heading">Conjugaciones</div>
+
       <div class="setting-row">
-        <span class="label"></span>
-        <button class="chip-all" id="select-core">Solo tiempos básicos</button>
-        <span style="color:var(--border)">·</span>
-        <button class="chip-all" id="select-all-tenses">Todos los tiempos</button>
+        <span class="label">Modo</span>
+        <div class="chip-scroll" id="mode-row" style="max-height:none;">
+          <button class="chip" id="mode-subject" data-mode="subject">Solo sujeto</button>
+          <button class="chip" id="mode-transition" data-mode="transition">Sujeto → objeto</button>
+        </div>
       </div>
+
+      <div class="setting-row tense-group" style="align-items:flex-start;" data-group="basicos">
+        <span class="label" style="margin-top:.4rem;">Básicos</span>
+        <div class="chip-scroll" id="group-basicos"></div>
+      </div>
+      <div class="setting-row tense-group" style="align-items:flex-start;" data-group="comunes">
+        <span class="label" style="margin-top:.4rem;">Comunes</span>
+        <div class="chip-scroll" id="group-comunes"></div>
+      </div>
+      <div class="setting-row tense-group" style="align-items:flex-start;" data-group="mandato">
+        <span class="label" style="margin-top:.4rem;">Mandato / modalidad</span>
+        <div class="chip-scroll" id="group-mandato"></div>
+      </div>
+      <div class="setting-row tense-group" style="align-items:flex-start;" data-group="avanzadas">
+        <span class="label" style="margin-top:.4rem;">Avanzadas</span>
+        <div>
+          <div class="chip-scroll" id="group-avanzadas"></div>
+          <div class="chip-scroll" id="group-avanzadas-more" hidden></div>
+          <button class="chip-all more-toggle" id="advanced-more-toggle">Más…</button>
+        </div>
+      </div>
+
+      <div class="setting-row transitions-row" style="align-items:flex-start;" id="transitions-row" hidden>
+        <span class="label" style="margin-top:.4rem;">Transiciones</span>
+        <div>
+          <div class="chip-scroll" id="transitions-chips"></div>
+          <button class="chip-all" id="transitions-all">Todas</button>
+        </div>
+      </div>
+
+      <div class="settings-divider"></div>
       <div class="setting-row">
-        <span class="label">Extra</span>
-        <button class="chip" id="transitions-toggle" aria-pressed="false">Transiciones sujeto→objeto</button>
+        <span class="label">Presets</span>
+        <div class="chip-scroll" style="max-height:none;">
+          <button class="chip-all" id="preset-basicos">Básicos</button>
+          <span style="color:var(--border)">·</span>
+          <button class="chip-all" id="preset-conversacion">Conversación</button>
+          <span style="color:var(--border)">·</span>
+          <button class="chip-all" id="preset-transiciones">Con transiciones</button>
+          <span style="color:var(--border)">·</span>
+          <button class="chip-all" id="preset-todo">Todo</button>
+          <span style="color:var(--border)">·</span>
+          <button class="chip-all" id="preset-ninguno">Ninguno</button>
+        </div>
       </div>
     </div>
 
@@ -515,7 +568,20 @@
   ];
 
   var TENSE_ORDER = ['presente','pasado','futuro','pasadoReciente','presenteActual','perfecto','imperfecto','delegatorio','condicional','obligatorio','participio'];
-  var CORE_TENSES = ['presente','pasado','futuro','presenteActual'];
+  var CORE_TENSES = ['presente','pasado','futuro'];
+
+  // Practice-picker grouping. 'imperativo' is a pseudo-tense-key: it isn't in
+  // TENSES/TENSE_ORDER (its paradigm only has 3 persons, not 7, and its own
+  // reference table already exists), and is special-cased in pickQuestion(),
+  // newQuestion() and srsKey() wherever a tenseKey is handled.
+  var TENSE_GROUPS = [
+    {id:'basicos',   label:'Básicos',            keys:['presente','pasado','futuro']},
+    {id:'comunes',   label:'Comunes',            keys:['presenteActual','pasadoReciente']},
+    {id:'mandato',   label:'Mandato / modalidad',keys:['imperativo','obligatorio']},
+    {id:'avanzadas', label:'Avanzadas',          keys:['participio'], moreKeys:['perfecto','imperfecto','delegatorio','condicional']}
+  ];
+  var IMPERATIVO_LABELS = {1:{q:'Qam', es:'tú'}, 2:{q:'Pay', es:'él / ella'}, 3:{q:'Nuqantsik', es:'nosotros'}};
+  function tenseLabel(key){ return key === 'imperativo' ? 'Imperativo' : TENSES[key].label; }
 
   var TENSES = {
     presente:        {label:'Presente',                     academic:'Present −∅',                       suffixes:[REPEAT,'nki','n','ntsik','yaa','yanki','yan'],                                     page:'p.17'},
@@ -547,9 +613,13 @@
   // "Transiciones": subject→object person marking. Only these 5 tenses are
   // attested for this paradigm. Each row is [1→2, 2→1, 3→2, 2→3, 1→3, 3→1, 3→3];
   // rows where the object is 3rd person (2→3, 1→3, 3→3) are identical to the
-  // plain subject-only forms — expected, since 3rd-person objects are unmarked —
-  // so they're shown in the reference table but skipped in practice questions.
+  // plain subject-only forms — expected, since 3rd-person objects are unmarked.
+  // All 7 pairs are user-selectable in practice (confirming "no special marking"
+  // for a 3rd-person object is itself worth practicing); the 4 pairs where the
+  // form actually differs are preselected by default.
   var TRANSITION_TENSES = ['presente', 'pasado', 'futuro', 'pasadoReciente', 'presenteActual'];
+  var DEFAULT_TRANSITION_INDICES = [0, 1, 2, 5];
+  function soPairLabel(soIdx){ var so = SO_PAIRS[soIdx]; return (so.s + 1) + '→' + (so.o + 1); }
   var TRANSITIONS = {
     presente:       ['q', 'manki', 'shunki', 'nki', REPEAT, 'man', 'n'],
     pasado:         ['rqaq', 'marqayki', 'shurqayki', 'rqayki', 'rqaa', 'marqan', 'rqan'],
@@ -748,7 +818,7 @@
   // looked up by root so it stays correct regardless of array order.
   var CORE_VERB_ROOTS = [
     'urya','puklla','yacha','qillqa','rika','aywa','pala','wiya','punu','shamu',
-    'ranti','rura','miku','upya','mutsa','qatswa','pinti','lluqa','yarpu','kuti'
+    'ranti','rura','miku','upu','mutsa','qatswa','pinti','lluqa','yarpu','kuti'
   ];
   function coreVerbIndices(){
     var indices = [];
@@ -775,7 +845,11 @@
   }
 
   // ---------- persisted state ----------
-  var state = {selectedVerbs:coreVerbIndices(), selectedTenses:CORE_TENSES.slice(), includeTransitions:false, score:{correct:0,total:0}, streak:0};
+  // "Modo" (state.mode) is exclusive: 'subject' practices plain subject-only
+  // conjugation, 'transition' practices only subject→object forms. This
+  // replaces the old includeTransitions boolean, which layered transition
+  // questions on top of subject questions instead of switching between them.
+  var state = {selectedVerbs:coreVerbIndices(), selectedTenses:CORE_TENSES.slice(), mode:'subject', selectedTransitions:DEFAULT_TRANSITION_INDICES.slice(), score:{correct:0,total:0}, streak:0};
   try {
     var saved = JSON.parse(localStorage.getItem('rimashun-state') || 'null');
     if (saved && Array.isArray(saved.selectedVerbs) && saved.selectedVerbs.length){
@@ -784,13 +858,29 @@
     if (saved && Array.isArray(saved.selectedTenses) && saved.selectedTenses.length){
       state.selectedTenses = saved.selectedTenses;
     }
-    if (saved && typeof saved.includeTransitions === 'boolean'){
-      state.includeTransitions = saved.includeTransitions;
+    if (saved && (saved.mode === 'subject' || saved.mode === 'transition')){
+      state.mode = saved.mode;
+    } else if (saved && saved.includeTransitions === true){
+      // migrate from the old boolean
+      state.mode = 'transition';
+    }
+    if (saved && Array.isArray(saved.selectedTransitions) && saved.selectedTransitions.length){
+      state.selectedTransitions = saved.selectedTransitions;
     }
   } catch(e){}
 
+  // A tense selected under one mode may not apply under the other (e.g.
+  // "Imperativo" has no subject→object form) — keep the selection valid.
+  function ensureValidTenseSelection(){
+    if (state.mode === 'transition'){
+      var valid = state.selectedTenses.filter(function(tk){ return TRANSITION_TENSES.indexOf(tk) > -1; });
+      state.selectedTenses = valid.length ? valid : ['presente'];
+    }
+  }
+  ensureValidTenseSelection();
+
   function persist(){
-    try { localStorage.setItem('rimashun-state', JSON.stringify({selectedVerbs:state.selectedVerbs, selectedTenses:state.selectedTenses, includeTransitions:state.includeTransitions})); }
+    try { localStorage.setItem('rimashun-state', JSON.stringify({selectedVerbs:state.selectedVerbs, selectedTenses:state.selectedTenses, mode:state.mode, selectedTransitions:state.selectedTransitions})); }
     catch(e){}
   }
 
@@ -826,6 +916,9 @@
   function srsKey(question){
     if (question.kind === 'transition'){
       return question.verb.root + '|' + question.tenseKey + '|T' + question.soIndex;
+    }
+    if (question.kind === 'imperativo'){
+      return question.verb.root + '|imperativo|' + question.personSlot;
     }
     return question.verb.root + '|' + question.tenseKey + '|' + question.personIdx;
   }
@@ -934,28 +1027,35 @@
   // full pool if nothing is due yet), never the exact combo just asked, and —
   // to interleave grammatical categories rather than block by tense (Pan et
   // al.'s interleaved-practice effect) — never the same tense as the question
-  // immediately before it, whenever another tense is in play. Draws from plain
-  // subject-only combos plus, when enabled, subject→object "transiciones" combos
-  // (only the 4 where the marking actually differs from the plain form).
+  // immediately before it, whenever another tense is in play. "Modo" is
+  // exclusive: subject mode draws plain subject-only combos (including
+  // Imperativo's 3-person paradigm); transition mode draws only
+  // subject→object "transiciones" combos, for whichever pairs are selected.
   function pickQuestion(){
     var pool = [];
     state.selectedVerbs.forEach(function(vi){
-      state.selectedTenses.forEach(function(tk){
-        for (var p = 0; p < 7; p++){
-          var verb = VERBS[vi];
-          var key = verb.root + '|' + tk + '|' + p;
-          pool.push({kind:'subject', verbIdx:vi, tenseKey:tk, personIdx:p, key:key, due:isDue(srs[key])});
-        }
-      });
-      if (state.includeTransitions){
+      var verb = VERBS[vi];
+      if (state.mode === 'transition'){
         state.selectedTenses.forEach(function(tk){
           if (TRANSITION_TENSES.indexOf(tk) === -1) return;
-          SO_PAIRS.forEach(function(so, soIdx){
-            if (!so.distinct) return;
-            var verb = VERBS[vi];
+          state.selectedTransitions.forEach(function(soIdx){
             var key = verb.root + '|' + tk + '|T' + soIdx;
             pool.push({kind:'transition', verbIdx:vi, tenseKey:tk, soIndex:soIdx, key:key, due:isDue(srs[key])});
           });
+        });
+      } else {
+        state.selectedTenses.forEach(function(tk){
+          if (tk === 'imperativo'){
+            IMPERATIVO.persons.forEach(function(pSlot){
+              var key = verb.root + '|imperativo|' + pSlot;
+              pool.push({kind:'imperativo', verbIdx:vi, tenseKey:'imperativo', personSlot:pSlot, key:key, due:isDue(srs[key])});
+            });
+          } else {
+            for (var p = 0; p < 7; p++){
+              var key = verb.root + '|' + tk + '|' + p;
+              pool.push({kind:'subject', verbIdx:vi, tenseKey:tk, personIdx:p, key:key, due:isDue(srs[key])});
+            }
+          }
         });
       }
     });
@@ -1001,9 +1101,8 @@
 
   // ---------- settings chips ----------
   var verbRow = document.getElementById('verb-row');
-  var tenseRow = document.getElementById('tense-row');
 
-  function buildChips(){
+  function buildVerbChips(){
     VERBS.forEach(function(v, i){
       var chip = document.createElement('button');
       chip.className = 'chip' + (state.selectedVerbs.indexOf(i) > -1 ? ' on' : '');
@@ -1025,29 +1124,8 @@
       });
       verbRow.appendChild(chip);
     });
-
-    TENSE_ORDER.forEach(function(key){
-      var chip = document.createElement('button');
-      chip.className = 'chip' + (state.selectedTenses.indexOf(key) > -1 ? ' on' : '');
-      chip.textContent = TENSES[key].label;
-      chip.setAttribute('aria-pressed', state.selectedTenses.indexOf(key) > -1);
-      chip.addEventListener('click', function(){
-        var idx = state.selectedTenses.indexOf(key);
-        if (idx > -1){
-          if (state.selectedTenses.length === 1) return;
-          state.selectedTenses.splice(idx,1);
-        } else {
-          state.selectedTenses.push(key);
-        }
-        chip.classList.toggle('on');
-        chip.setAttribute('aria-pressed', state.selectedTenses.indexOf(key) > -1);
-        persist();
-      });
-      chip.dataset.tenseKey = key;
-      tenseRow.appendChild(chip);
-    });
   }
-  buildChips();
+  buildVerbChips();
 
   document.getElementById('verbs-all').textContent = 'Todos (' + VERBS.length + ')';
   document.getElementById('verbs-core').textContent = 'Básicos (' + coreVerbIndices().length + ')';
@@ -1087,31 +1165,142 @@
     persist();
   });
 
-  document.getElementById('select-core').addEventListener('click', function(){
-    state.selectedTenses = CORE_TENSES.slice();
-    Array.prototype.forEach.call(tenseRow.querySelectorAll('.chip'), function(c){
-      var on = state.selectedTenses.indexOf(c.dataset.tenseKey) > -1;
-      c.classList.toggle('on', on);
-      c.setAttribute('aria-pressed', on);
+  // ---------- conjugaciones: modo + grouped tense chips ----------
+  var tenseChipEls = {};
+  function makeTenseChip(key, container){
+    var chip = document.createElement('button');
+    chip.className = 'chip' + (state.selectedTenses.indexOf(key) > -1 ? ' on' : '');
+    chip.textContent = tenseLabel(key);
+    chip.setAttribute('aria-pressed', state.selectedTenses.indexOf(key) > -1);
+    chip.dataset.tenseKey = key;
+    chip.addEventListener('click', function(){
+      var idx = state.selectedTenses.indexOf(key);
+      if (idx > -1){
+        if (state.selectedTenses.length === 1) return;
+        state.selectedTenses.splice(idx,1);
+      } else {
+        state.selectedTenses.push(key);
+      }
+      syncTenseChips();
+      persist();
     });
+    tenseChipEls[key] = chip;
+    container.appendChild(chip);
+  }
+  function syncTenseChips(){
+    Object.keys(tenseChipEls).forEach(function(key){
+      var on = state.selectedTenses.indexOf(key) > -1;
+      tenseChipEls[key].classList.toggle('on', on);
+      tenseChipEls[key].setAttribute('aria-pressed', on);
+    });
+  }
+  TENSE_GROUPS.forEach(function(g){
+    var container = document.getElementById('group-' + g.id);
+    g.keys.forEach(function(key){ makeTenseChip(key, container); });
+    if (g.moreKeys){
+      var moreContainer = document.getElementById('group-' + g.id + '-more');
+      g.moreKeys.forEach(function(key){ makeTenseChip(key, moreContainer); });
+    }
+  });
+
+  var elAdvancedMore = document.getElementById('group-avanzadas-more');
+  document.getElementById('advanced-more-toggle').addEventListener('click', function(e){
+    var open = elAdvancedMore.hidden;
+    elAdvancedMore.hidden = !open;
+    e.target.textContent = open ? 'Menos…' : 'Más…';
+  });
+
+  var elModeSubject = document.getElementById('mode-subject');
+  var elModeTransition = document.getElementById('mode-transition');
+  var elTransitionsRow = document.getElementById('transitions-row');
+  var elGroupMandato = document.querySelector('.tense-group[data-group="mandato"]');
+  var elGroupAvanzadas = document.querySelector('.tense-group[data-group="avanzadas"]');
+
+  function syncModeUI(){
+    elModeSubject.classList.toggle('on', state.mode === 'subject');
+    elModeSubject.setAttribute('aria-pressed', state.mode === 'subject');
+    elModeTransition.classList.toggle('on', state.mode === 'transition');
+    elModeTransition.setAttribute('aria-pressed', state.mode === 'transition');
+    elTransitionsRow.hidden = state.mode !== 'transition';
+    // Imperativo/Obligativo/Avanzadas have no subject→object paradigm.
+    elGroupMandato.classList.toggle('disabled', state.mode === 'transition');
+    elGroupAvanzadas.classList.toggle('disabled', state.mode === 'transition');
+  }
+  syncModeUI();
+
+  elModeSubject.addEventListener('click', function(){
+    if (state.mode === 'subject') return;
+    state.mode = 'subject';
+    syncModeUI();
     persist();
   });
-  document.getElementById('select-all-tenses').addEventListener('click', function(){
-    state.selectedTenses = TENSE_ORDER.slice();
-    Array.prototype.forEach.call(tenseRow.querySelectorAll('.chip'), function(c){
-      c.classList.add('on'); c.setAttribute('aria-pressed','true');
-    });
+  elModeTransition.addEventListener('click', function(){
+    if (state.mode === 'transition') return;
+    state.mode = 'transition';
+    ensureValidTenseSelection();
+    syncTenseChips();
+    syncModeUI();
     persist();
   });
 
-  var elTransitionsToggle = document.getElementById('transitions-toggle');
-  elTransitionsToggle.classList.toggle('on', state.includeTransitions);
-  elTransitionsToggle.setAttribute('aria-pressed', String(state.includeTransitions));
-  elTransitionsToggle.addEventListener('click', function(){
-    state.includeTransitions = !state.includeTransitions;
-    elTransitionsToggle.classList.toggle('on', state.includeTransitions);
-    elTransitionsToggle.setAttribute('aria-pressed', String(state.includeTransitions));
+  // ---------- transiciones pair chips ----------
+  var transitionsChipsRow = document.getElementById('transitions-chips');
+  function syncTransitionChips(){
+    Array.prototype.forEach.call(transitionsChipsRow.querySelectorAll('.chip'), function(c, i){
+      var on = state.selectedTransitions.indexOf(i) > -1;
+      c.classList.toggle('on', on);
+      c.setAttribute('aria-pressed', on);
+    });
+  }
+  SO_PAIRS.forEach(function(so, soIdx){
+    var chip = document.createElement('button');
+    chip.className = 'chip' + (state.selectedTransitions.indexOf(soIdx) > -1 ? ' on' : '');
+    chip.textContent = soPairLabel(soIdx);
+    chip.title = so.es;
+    chip.setAttribute('aria-pressed', state.selectedTransitions.indexOf(soIdx) > -1);
+    chip.addEventListener('click', function(){
+      var idx = state.selectedTransitions.indexOf(soIdx);
+      if (idx > -1){
+        if (state.selectedTransitions.length === 1) return;
+        state.selectedTransitions.splice(idx,1);
+      } else {
+        state.selectedTransitions.push(soIdx);
+      }
+      syncTransitionChips();
+      persist();
+    });
+    transitionsChipsRow.appendChild(chip);
+  });
+  document.getElementById('transitions-all').addEventListener('click', function(){
+    state.selectedTransitions = SO_PAIRS.map(function(so, i){ return i; });
+    syncTransitionChips();
     persist();
+  });
+
+  // ---------- presets ----------
+  function applyPreset(mode, tenses, transitions){
+    state.mode = mode;
+    state.selectedTenses = tenses.slice();
+    if (transitions) state.selectedTransitions = transitions.slice();
+    syncTenseChips();
+    syncTransitionChips();
+    syncModeUI();
+    persist();
+  }
+  document.getElementById('preset-basicos').addEventListener('click', function(){
+    applyPreset('subject', ['presente','pasado','futuro']);
+  });
+  document.getElementById('preset-conversacion').addEventListener('click', function(){
+    applyPreset('subject', ['presente','pasado','futuro','presenteActual','pasadoReciente']);
+  });
+  document.getElementById('preset-transiciones').addEventListener('click', function(){
+    applyPreset('transition', TRANSITION_TENSES.slice(), DEFAULT_TRANSITION_INDICES.slice());
+  });
+  document.getElementById('preset-todo').addEventListener('click', function(){
+    applyPreset('subject', TENSE_ORDER.concat(['imperativo']));
+  });
+  document.getElementById('preset-ninguno').addEventListener('click', function(){
+    applyPreset('subject', ['presente']);
   });
 
   // ---------- daily goal ----------
@@ -1129,20 +1318,27 @@
     var due = 0;
     state.selectedVerbs.forEach(function(vi){
       var verb = VERBS[vi];
-      state.selectedTenses.forEach(function(tk){
-        for (var p = 0; p < 7; p++){
-          var rec = srs[verb.root + '|' + tk + '|' + p];
-          if (rec && rec.seen > 0 && isDue(rec)) due++;
-        }
-      });
-      if (state.includeTransitions){
+      if (state.mode === 'transition'){
         state.selectedTenses.forEach(function(tk){
           if (TRANSITION_TENSES.indexOf(tk) === -1) return;
-          SO_PAIRS.forEach(function(so, soIdx){
-            if (!so.distinct) return;
+          state.selectedTransitions.forEach(function(soIdx){
             var rec = srs[verb.root + '|' + tk + '|T' + soIdx];
             if (rec && rec.seen > 0 && isDue(rec)) due++;
           });
+        });
+      } else {
+        state.selectedTenses.forEach(function(tk){
+          if (tk === 'imperativo'){
+            IMPERATIVO.persons.forEach(function(pSlot){
+              var rec = srs[verb.root + '|imperativo|' + pSlot];
+              if (rec && rec.seen > 0 && isDue(rec)) due++;
+            });
+          } else {
+            for (var p = 0; p < 7; p++){
+              var rec = srs[verb.root + '|' + tk + '|' + p];
+              if (rec && rec.seen > 0 && isDue(rec)) due++;
+            }
+          }
         });
       }
     });
@@ -1278,25 +1474,34 @@
     var choice = pickQuestion();
     var verb = VERBS[choice.verbIdx];
     var tenseKey = choice.tenseKey;
-    var tense = TENSES[tenseKey];
 
     if (choice.kind === 'transition'){
+      var tense = TENSES[tenseKey];
       var so = SO_PAIRS[choice.soIndex];
       var answer = conjugate(verb.root, TRANSITIONS[tenseKey][choice.soIndex]);
       q = {kind:'transition', verb:verb, tenseKey:tenseKey, soIndex:choice.soIndex, answer:answer};
       elPersonQ.innerHTML = PERSONS[so.s].q + '<span class="prompt-arrow">→</span>' + PERSONS[so.o].q + '<span class="obj-ta">ta</span>';
       elVerbGloss.textContent = verb.es + ' — ' + so.es;
+      elTensePill.textContent = tense.label;
+    } else if (choice.kind === 'imperativo'){
+      var pSlot = choice.personSlot;
+      var answer = conjugate(verb.root, IMPERATIVO.suffixes[pSlot]);
+      q = {kind:'imperativo', verb:verb, personSlot:pSlot, answer:answer};
+      elPersonQ.textContent = IMPERATIVO_LABELS[pSlot].q;
+      elVerbGloss.textContent = IMPERATIVO_LABELS[pSlot].es + ' · ' + verb.es + ' — mandato';
+      elTensePill.textContent = 'Imperativo';
     } else {
+      var tense = TENSES[tenseKey];
       var personIdx = choice.personIdx;
       var answer = conjugate(verb.root, tense.suffixes[personIdx]);
       q = {kind:'subject', verb:verb, tenseKey:tenseKey, personIdx:personIdx, answer:answer};
       elPersonQ.textContent = PERSONS[personIdx].q;
       elVerbGloss.textContent = PERSONS[personIdx].es + ' · ' + verb.es;
+      elTensePill.textContent = tense.label;
     }
     lastPickedKey = choice.key;
     lastTenseKey = tenseKey;
 
-    elTensePill.textContent = tense.label;
     elInfinitive.textContent = verb.inf;
 
     var rec = srs[srsKey(q)];
