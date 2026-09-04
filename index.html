@@ -298,6 +298,7 @@
   @media (prefers-reduced-motion: reduce){ .rate-row{animation:none;} }
   .rate-morph{font-family:var(--font-mono);font-size:1.05rem;margin-bottom:.7rem;}
   .rate-morph .root{color:var(--ink-dim);}
+  .rate-morph .caus{color:var(--indigo);font-weight:700;}
   .rate-morph .suf{color:var(--accent-strong);font-weight:700;}
   .rate-label{font-size:.875rem;color:var(--ink-dim);margin-bottom:.6rem;}
   .rate-buttons{display:flex;gap:.6rem;justify-content:center;}
@@ -529,7 +530,8 @@
 
     <div id="transitions-block">
       <h2 class="section-title">Transiciones (sujeto → objeto)</h2>
-      <p class="section-note">Cómo cambia el verbo cuando el sujeto actúa sobre un objeto de 1ª o 2ª persona (el <span class="obj-ta">-ta</span> es el caso acusativo del objeto). Solo existe para estos 5 tiempos. Cuando el objeto es 3ª persona no hay marca especial — el verbo es igual que en el paradigma de sujeto solo, por eso esas filas se ven repetidas.</p>
+      <p class="section-note">Cómo cambia el verbo cuando el sujeto actúa sobre un objeto de 1ª o 2ª persona (el <span class="obj-ta">-ta</span> es el caso acusativo del objeto). Solo existe para estos 5 tiempos. Cuando el objeto es 3ª persona no hay marca especial — el verbo es igual que en el paradigma de sujeto solo, por eso esas filas se ven repetidas. Solo verbos naturalmente transitivos (ver, pegar, ayudar…) toman esta marca directamente; el resto se muestra en su forma causativa con <span style="color:var(--indigo);font-weight:700;">-tsi</span> ("hacer que…").</p>
+      <p class="section-note" id="transitions-verb-note" hidden></p>
       <div class="table-scroll" style="margin-bottom:1.2rem;">
         <table class="paradigm" id="transitions-table"></table>
       </div>
@@ -681,7 +683,7 @@
   var VERBS = [
     {root:'miku',  inf:'mikuy',  es:'comer',           note:'"mikun" — p.13: "Allqu papata mikun" (el perro come papa).'},
     {root:'yacha', inf:'yachay', es:'aprender / saber', note:'"yachaq kantsik" — p.7 (somos los que aprendemos), y el título "…Yachakushun" — p.1 y p.7 (aprendamos).'},
-    {root:'willa', inf:'willay', es:'contar / avisar',  note:'"willapaanakur" — p.7 (avisándonos, contándonos unos a otros).'},
+    {root:'willa', transitive:true, inf:'willay', es:'contar / avisar',  note:'"willapaanakur" — p.7 (avisándonos, contándonos unos a otros).'},
     {root:'wanu',  inf:'wanuy',  es:'morir',            note:'"wanunqatsu" — p.4: "manam wanunqatsu" (no morirá).'}
   ];
 
@@ -691,22 +693,22 @@
   var HW_VERBS = [
     {root:'kachu',     es:'masticar'},
     {root:'urya',      es:'trabajar'},
-    {root:'hampi',     es:'curar'},
+    {root:'hampi', transitive:true,     es:'curar'},
     {root:'musya',     es:'saber (información)'},
-    {root:'apaya',     es:'llevar'},
-    {root:'ni',        es:'decir'},
+    {root:'apaya', transitive:true,     es:'llevar'},
+    {root:'ni', transitive:true,        es:'decir'},
     {root:'sha',       es:'pararse'},
-    {root:'wiya',      es:'escuchar'},
-    {root:'wanutsi',   es:'matar (hacer morir)'},
+    {root:'wiya', transitive:true,      es:'escuchar'},
+    {root:'wanutsi', transitive:true,   es:'matar (hacer morir)'},
     {root:'yanu',      es:'cocinar'},
     {root:'kicha',     es:'abrir'},
     {root:'wichqa',    es:'cerrar'},
     {root:'panta',     es:'olvidar'},
-    {root:'mantsa',    es:'temer / asustar'},
+    {root:'mantsa', transitive:true,    es:'temer / asustar'},
     {root:'taaku',     es:'sentarse'},
     {root:'warku',     es:'colgar'},
-    {root:'shuya',     es:'esperar'},
-    {root:'rikapa',    es:'observar'},
+    {root:'shuya', transitive:true,     es:'esperar'},
+    {root:'rikapa', transitive:true,    es:'observar'},
     {root:'chura',     es:'poner'},
     {root:'asi',       es:'reír'},
     {root:'maña',      es:'pedir / prestar'},
@@ -714,14 +716,14 @@
     {root:'taara',     es:'vivir'},
     {root:'pitsa',     es:'limpiar / barrer'},
     {root:'hita',      es:'tirar / botar'},
-    {root:'akra',      es:'escoger'},
+    {root:'akra', transitive:true,      es:'escoger'},
     {root:'shariku',   es:'despertarse / levantarse'},
-    {root:'riqi',      es:'conocer'},
-    {root:'qati',      es:'seguir'},
-    {root:'maqa',      es:'pegar'},
-    {root:'llaki',     es:'extrañar / entristecerse'},
-    {root:'qaya',      es:'llamar'},
-    {root:'kunaaku',   es:'encargar / suplicar'},
+    {root:'riqi', transitive:true,      es:'conocer'},
+    {root:'qati', transitive:true,      es:'seguir'},
+    {root:'maqa', transitive:true,      es:'pegar'},
+    {root:'llaki', transitive:true,     es:'extrañar / entristecerse'},
+    {root:'qaya', transitive:true,      es:'llamar'},
+    {root:'kunaaku', transitive:true,   es:'encargar / suplicar'},
     {root:'tsapa',     es:'tapar'},
     {root:'ayqi',      es:'correr'},
     {root:'puri',      es:'caminar'},
@@ -732,18 +734,18 @@
     {root:'lluqa',     es:'subir'},
     {root:'yarqu',     es:'salir / participar'},
     {root:'shaaku',    es:'parar(se)'},
-    {root:'napaku',    es:'saludar'},
+    {root:'napaku', transitive:true,    es:'saludar'},
     {root:'ranti',     es:'comprar'},
     {root:'rantiku',   es:'vender'},
     {root:'palapa',    es:'conversar'},
     {root:'tikra',     es:'girar'},
     {root:'tuma',      es:'doblar'},
     {root:'ishkitya',  es:'tropezar'},
-    {root:'yanapa',    es:'ayudar'},
-    {root:'ashi',      es:'buscar'},
-    {root:'tari',      es:'encontrar'},
+    {root:'yanapa', transitive:true,    es:'ayudar'},
+    {root:'ashi', transitive:true,      es:'buscar'},
+    {root:'tari', transitive:true,      es:'encontrar'},
     {root:'yayku',     es:'entrar'},
-    {root:'kata',      es:'cargar'},
+    {root:'kata', transitive:true,      es:'cargar'},
     {root:'paqa',      es:'lavar (cosas)'},
     {root:'taqsha',    es:'lavar (ropa)'},
     {root:'muqtsi',    es:'lavar / enjuagar'},
@@ -757,11 +759,11 @@
     {root:'qurapa',    es:'deshierbar'},
     {root:'injerta',   es:'injertar'},
     {root:'puqu',      es:'madurar'},
-    {root:'tapu',      es:'preguntar'},
-    {root:'yaski',     es:'contestar'},
-    {root:'kuya',      es:'amar'},
+    {root:'tapu', transitive:true,      es:'preguntar'},
+    {root:'yaski', transitive:true,     es:'contestar'},
+    {root:'kuya', transitive:true,      es:'amar'},
     {root:'kushi',     es:'alegrarse'},
-    {root:'tsari',     es:'agarrar'},
+    {root:'tsari', transitive:true,     es:'agarrar'},
     {root:'hipi',      es:'sacar / destrabar'},
     {root:'riyaku',    es:'despertarse'},
     {root:'naqtsaku',  es:'peinarse'},
@@ -770,13 +772,13 @@
     {root:'qu',        es:'dar'},
     {root:'mitsi',     es:'pastorear'},
     {root:'kuyutsi',   es:'batir'},
-    {root:'wata',      es:'amarrar'},
-    {root:'wana',      es:'necesitar'},
-    {root:'waata',     es:'criar'},
-    {root:'taapa',     es:'cuidar'},
+    {root:'wata', transitive:true,      es:'amarrar'},
+    {root:'wana', transitive:true,      es:'necesitar'},
+    {root:'waata', transitive:true,     es:'criar'},
+    {root:'taapa', transitive:true,     es:'cuidar'},
     {root:'qupi',      es:'tender / hacer la cama'},
     {root:'wayka',     es:'encender'},
-    {root:'qaraku',    es:'regalar / dar de comer'},
+    {root:'qaraku', transitive:true,    es:'regalar / dar de comer'},
     {root:'chaa',      es:'llegar'},
     {root:'patsatsi',  es:'planificar'},
     {root:'yakaku',    es:'ponerse'},
@@ -789,23 +791,23 @@
     {root:'haru',      es:'pizcar / cosechar a mano'},
     {root:'qillqa',    es:'escribir'},
     {root:'punu',      es:'dormir'},
-    {root:'haqiya',    es:'dejar'},
+    {root:'haqiya', transitive:true,    es:'dejar'},
     {root:'upi',       es:'apagar'},
-    {root:'washa',     es:'defender'},
+    {root:'washa', transitive:true,     es:'defender'},
     {root:'qapi',      es:'exprimir'},
-    {root:'kacha',     es:'soltar / mandar'},
+    {root:'kacha', transitive:true,     es:'soltar / mandar'},
     {root:'rama',      es:'derramar'},
     {root:'shuqu',     es:'chupar'},
-    {root:'shullpa',   es:'acariciar'},
-    {root:'kani',      es:'morder'},
+    {root:'shullpa', transitive:true,   es:'acariciar'},
+    {root:'kani', transitive:true,      es:'morder'},
     {root:'ka',        es:'ser / estar'},
     {root:'maku',      es:'sentir / sospechar'},
     {root:'qaqara',    es:'colindar'},
     {root:'paari',     es:'volar'},
     {root:'apta',      es:'empuñar'},
-    {root:'yata',      es:'tocar'},
+    {root:'yata', transitive:true,      es:'tocar'},
     {root:'shinri',    es:'enredar'},
-    {root:'muna',      es:'querer'},
+    {root:'muna', transitive:true,      es:'querer'},
     {root:'uti',       es:'cansarse'},
     {root:'waqa',      es:'llorar'},
     {root:'suwa',      es:'robar'},
@@ -814,39 +816,39 @@
     {root:'mira',      es:'reproducir'},
     {root:'qishya',    es:'enfermarse'},
     {root:'chipapa',   es:'brillar'},
-    {root:'kupari',    es:'sobar / frotar'},
+    {root:'kupari', transitive:true,    es:'sobar / frotar'},
     {root:'upallaka',  es:'callarse / estar en silencio'},
-    {root:'kuyu',      es:'mover'},
+    {root:'kuyu', transitive:true,      es:'mover'},
     {root:'kuti',      es:'volver'},
     {root:'tushu',     es:'bailar'},
-    {root:'yarpa',     es:'recordar'},
+    {root:'yarpa', transitive:true,     es:'recordar'},
     // Añadidos de la lista numerada de verbos básicos del usuario (2 grupos de 10).
     {root:'puklla',    es:'jugar'},
-    {root:'rika',      es:'mirar'},
+    {root:'rika', transitive:true,      es:'mirar'},
     {root:'pala',      es:'hablar'},
     {root:'rura',      es:'hacer'},
     {root:'upu',       es:'tomar'},
-    {root:'mutsa',     es:'besar'},
+    {root:'mutsa', transitive:true,     es:'besar'},
     {root:'qatswa',    es:'bailar'},
     {root:'yarpu',     es:'bajar'},
     // Añadidos de una segunda lista numerada de verbos (7 grupos de 10).
-    {root:'apa',       es:'llevar'},
-    {root:'tsara',     es:'agarrar / poseer'},
+    {root:'apa', transitive:true,       es:'llevar'},
+    {root:'tsara', transitive:true,     es:'agarrar / poseer'},
     {root:'kayka',     es:'estar'},
     {root:'ta',        es:'sentarse'},
     {root:'yakuna',    es:'tener sed'},
     {root:'qishpi',    es:'escapar'},
-    {root:'cha',       es:'llegar / visitar'},
+    {root:'cha', transitive:true,       es:'llegar / visitar'},
     {root:'sumatsi',   es:'dar importancia'},
     {root:'macha',     es:'emborracharse'},
     {root:'aru',       es:'trabajar'},
-    {root:'kupa',      es:'sobar'},
-    {root:'suta',      es:'jalar'},
-    {root:'hurqu',     es:'sacar'},
+    {root:'kupa', transitive:true,      es:'sobar'},
+    {root:'suta', transitive:true,      es:'jalar'},
+    {root:'hurqu', transitive:true,     es:'sacar'},
     // Restaurados: la lista anterior los tenía como ambiguos; esta lista numerada
     // los confirma con un solo significado claro.
     {root:'ayllu',     es:'recoger'},
-    {root:'kaayi',     es:'entender'}
+    {root:'kaayi', transitive:true,     es:'entender'}
   ];
   HW_VERBS.forEach(function(v){
     v.inf = v.root + 'y';
@@ -882,6 +884,23 @@
 
   function normalize(s){
     return s.trim().toLowerCase().replace(/\s+/g,' ');
+  }
+
+  // ---------- Transiciones eligibility ----------
+  // The subject→object suffixes mark a direct person object, so they only
+  // make sense on verbs that naturally take one ("me ve," "te pega"). Verbs
+  // flagged transitive:true use their plain root. Everything else is made
+  // transitive with the causative -tsi ("hace que coma" from mikuy) instead
+  // of just being skipped — except copulas (ka/kayka, "ser/estar," no
+  // sensible causative) and verbs whose root is already -tsi-derived
+  // (kuyutsi, muqtsi, patsatsi, sumatsi — stacking a second -tsi would be
+  // wrong), which are left out of Transiciones mode entirely.
+  var TRANSICIONES_EXCLUDE_ROOTS = ['ka', 'kayka'];
+  function transitionStemInfo(verb){
+    if (verb.transitive) return {stem:verb.root, causative:null};
+    if (TRANSICIONES_EXCLUDE_ROOTS.indexOf(verb.root) > -1) return null;
+    if (/tsi$/.test(verb.root)) return null;
+    return {stem:verb.root + 'tsi', causative:'tsi'};
   }
 
   // ---------- Cusco (Qusqu) Quechua dataset ----------
@@ -1337,13 +1356,15 @@
     state.selectedVerbs.forEach(function(vi){
       var verb = VERBS[vi];
       if (state.mode === 'transition'){
-        state.selectedTenses.forEach(function(tk){
-          if (TRANSITION_TENSES.indexOf(tk) === -1) return;
-          state.selectedTransitions.forEach(function(soIdx){
-            var key = verb.root + '|' + tk + '|T' + soIdx;
-            pool.push({kind:'transition', verbIdx:vi, tenseKey:tk, soIndex:soIdx, key:key, due:isDue(srs[key])});
+        if (transitionStemInfo(verb)){
+          state.selectedTenses.forEach(function(tk){
+            if (TRANSITION_TENSES.indexOf(tk) === -1) return;
+            state.selectedTransitions.forEach(function(soIdx){
+              var key = verb.root + '|' + tk + '|T' + soIdx;
+              pool.push({kind:'transition', verbIdx:vi, tenseKey:tk, soIndex:soIdx, key:key, due:isDue(srs[key])});
+            });
           });
-        });
+        }
       } else {
         state.selectedTenses.forEach(function(tk){
           if (tk === 'imperativo'){
@@ -1648,13 +1669,15 @@
     state.selectedVerbs.forEach(function(vi){
       var verb = VERBS[vi];
       if (state.mode === 'transition'){
-        state.selectedTenses.forEach(function(tk){
-          if (TRANSITION_TENSES.indexOf(tk) === -1) return;
-          state.selectedTransitions.forEach(function(soIdx){
-            var rec = srs[verb.root + '|' + tk + '|T' + soIdx];
-            if (rec && rec.seen > 0 && isDue(rec)) due++;
+        if (transitionStemInfo(verb)){
+          state.selectedTenses.forEach(function(tk){
+            if (TRANSITION_TENSES.indexOf(tk) === -1) return;
+            state.selectedTransitions.forEach(function(soIdx){
+              var rec = srs[verb.root + '|' + tk + '|T' + soIdx];
+              if (rec && rec.seen > 0 && isDue(rec)) due++;
+            });
           });
-        });
+        }
       } else {
         state.selectedTenses.forEach(function(tk){
           if (tk === 'imperativo'){
@@ -1764,7 +1787,9 @@
     elAnswer.classList.toggle('correct', isMatch);
     elHintBtn.hidden = isMatch;
     if (isMatch && elRateRow.hidden){
-      elRateMorph.innerHTML = '<span class="root">' + q.answer.root + '</span><span class="suf">' + q.answer.suffix + '</span>';
+      elRateMorph.innerHTML = '<span class="root">' + q.answer.root + '</span>' +
+        (q.answer.causative ? '<span class="caus">' + q.answer.causative + '</span>' : '') +
+        '<span class="suf">' + q.answer.suffix + '</span>';
       elRateRow.hidden = false;
     } else if (!isMatch){
       elRateRow.hidden = true;
@@ -1801,16 +1826,27 @@
     bumpCounter();
 
     var choice = pickQuestion();
+    if (!choice){
+      // Every selected verb is ineligible for Transiciones (e.g. only
+      // "ser/estar" is selected) — fall back to Solo sujeto rather than
+      // getting stuck with no question to show.
+      state.mode = 'subject';
+      syncModeUI();
+      persist();
+      choice = pickQuestion();
+    }
     var verb = VERBS[choice.verbIdx];
     var tenseKey = choice.tenseKey;
 
     if (choice.kind === 'transition'){
       var tense = TENSES[tenseKey];
       var so = SO_PAIRS[choice.soIndex];
-      var answer = conjugate(verb.root, TRANSITIONS[tenseKey][choice.soIndex]);
+      var info = transitionStemInfo(verb);
+      var conj = conjugate(info.stem, TRANSITIONS[tenseKey][choice.soIndex]);
+      var answer = {root:verb.root, causative:info.causative, suffix:conj.suffix, full:conj.full};
       q = {kind:'transition', verb:verb, tenseKey:tenseKey, soIndex:choice.soIndex, answer:answer};
       elPersonQ.innerHTML = PERSONS[so.s].q + '<span class="prompt-arrow">→</span>' + PERSONS[so.o].q + '<span class="obj-ta">ta</span>';
-      elVerbGloss.textContent = verb.es + ' — ' + so.es;
+      elVerbGloss.textContent = (info.causative ? 'hacer ' + verb.es : verb.es) + ' — ' + so.es;
       elTensePill.textContent = tense.label;
     } else if (choice.kind === 'imperativo'){
       var pSlot = choice.personSlot;
@@ -1972,6 +2008,23 @@
   function renderTransitions(){
     var verb = VERBS[refVerbIdx];
     var table = document.getElementById('transitions-table');
+    var note = document.getElementById('transitions-verb-note');
+    if (!ACTIVE.hasTransitions){ table.innerHTML = ''; if (note) note.hidden = true; return; }
+
+    var info = transitionStemInfo(verb);
+    if (!info){
+      table.innerHTML = '';
+      if (note){
+        note.hidden = false;
+        note.textContent = '"' + verb.es + '" no toma un objeto de persona directamente y no se puede causativizar de forma limpia — no aplica aquí.';
+      }
+      return;
+    }
+    if (note){
+      note.hidden = !info.causative;
+      if (info.causative) note.textContent = '"' + verb.es + '" no es transitivo — mostrando la forma causativa (' + info.stem + '-, "hacer ' + verb.es + '").';
+    }
+
     var html = '<thead><tr><th></th>';
     TRANSITION_TENSES.forEach(function(key){ html += '<th>' + TENSES[key].label + '</th>'; });
     html += '</tr></thead><tbody>';
@@ -1980,7 +2033,7 @@
       html += '<tr><th>' + rowLabel + '</th>';
       TRANSITION_TENSES.forEach(function(key){
         var suf = TRANSITIONS[key][soIdx];
-        var c = conjugate(verb.root, suf);
+        var c = conjugate(info.stem, suf);
         var display = (suf === REPEAT || suf === REPEATMAN) ? '(' + c.full + ')' : c.full;
         html += '<td>' + display + '</td>';
       });
