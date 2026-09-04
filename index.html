@@ -97,6 +97,15 @@
     opacity:.4;
     border:none;
   }
+  .title-row{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+  .dialect-bar{display:flex;align-items:center;gap:.5rem;font-family:var(--font-body);font-size:.8125rem;color:var(--ink-dim);}
+  .dialect-switch-btn{
+    font-family:var(--font-body);font-weight:600;font-size:.8125rem;
+    background:none;color:var(--accent-strong);border:1px solid var(--accent);
+    border-radius:100px;padding:.25rem .7rem;cursor:pointer;
+  }
+  .dialect-switch-btn:hover{background:var(--accent-soft);}
+  td.cell-na{color:var(--ink-dim);text-align:center;}
 
   nav.tabs{display:flex;gap:.4rem;border-bottom:1px solid var(--border);margin-bottom:1.75rem;}
   nav.tabs button{
@@ -377,7 +386,13 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>Yachashaq</h1>
+  <div class="title-row">
+    <h1>Yachashaq</h1>
+    <div class="dialect-bar">
+      <span id="dialect-name">Áncash</span>
+      <button class="dialect-switch-btn" id="dialect-switch-btn" type="button"></button>
+    </div>
+  </div>
   <hr class="divider">
 
   <nav class="tabs">
@@ -512,41 +527,55 @@
       <table class="paradigm" id="paradigm-table"></table>
     </div>
 
-    <h2 class="section-title">Transiciones (sujeto → objeto)</h2>
-    <p class="section-note">Cómo cambia el verbo cuando el sujeto actúa sobre un objeto de 1ª o 2ª persona (el <span class="obj-ta">-ta</span> es el caso acusativo del objeto). Solo existe para estos 5 tiempos. Cuando el objeto es 3ª persona no hay marca especial — el verbo es igual que en el paradigma de sujeto solo, por eso esas filas se ven repetidas.</p>
-    <div class="table-scroll" style="margin-bottom:1.2rem;">
-      <table class="paradigm" id="transitions-table"></table>
+    <div id="transitions-block">
+      <h2 class="section-title">Transiciones (sujeto → objeto)</h2>
+      <p class="section-note">Cómo cambia el verbo cuando el sujeto actúa sobre un objeto de 1ª o 2ª persona (el <span class="obj-ta">-ta</span> es el caso acusativo del objeto). Solo existe para estos 5 tiempos. Cuando el objeto es 3ª persona no hay marca especial — el verbo es igual que en el paradigma de sujeto solo, por eso esas filas se ven repetidas.</p>
+      <div class="table-scroll" style="margin-bottom:1.2rem;">
+        <table class="paradigm" id="transitions-table"></table>
+      </div>
     </div>
 
     <h2 class="section-title">Imperativo</h2>
-    <p class="section-note">Página 20. Solo existe para 2ª y 3ª persona y para "nosotros inclusivo" — no hay imperativo de nuqa.</p>
+    <p class="section-note" id="imperativo-note">Página 20. Solo existe para 2ª y 3ª persona y para "nosotros inclusivo" — no hay imperativo de nuqa.</p>
     <div class="imperativo-box" id="imperativo-box"></div>
 
-    <p class="section-note" style="margin-top:1.3rem;">Formas especiales con objeto marcado (quién actúa → sobre quién):</p>
-    <div class="special-list" id="special-list"></div>
-
-    <h2 class="section-title">Notas de formación</h2>
-    <div class="notes">
-      <div class="note"><b>Alargamiento en 1ª persona.</b> Donde no hay marcador de tiempo propio (Presente, Condicional simple), nuqa no toma consonante: repite la última vocal de la base. Ej. <i>miku-</i> → <i>mikuu</i> "como".</div>
-      <div class="note"><b>El Pretérito perfecto compuesto, el Pretérito imperfecto y el Pluscuamperfecto son perifrásticos.</b> Raíz + nominalizador/participio (<i>-shqa</i>, <i>-q</i>, <i>-naq</i>) + el verbo <i>kay</i> "ser/estar" conjugado en presente (kaa, kanki, kan…) — dos palabras, no una.</div>
-      <div class="note"><b>Corrección de pronunciación.</b> El Futuro, 1ª persona plural exclusiva, se escribe <i>yaashaq</i> (no <i>yashaq</i>) por cómo se pronuncia realmente.</div>
+    <div id="special-block">
+      <p class="section-note" style="margin-top:1.3rem;">Formas especiales con objeto marcado (quién actúa → sobre quién):</p>
+      <div class="special-list" id="special-list"></div>
     </div>
 
-    <h2 class="section-title">Por qué estos nombres de tiempos</h2>
-    <p class="section-note">Los sufijos vienen de un curso de quechua ancashino, pero sus nombres para los tiempos eran descriptivos, no gramaticalmente exactos (p.ej. llamar "Modo Delegatorio" a lo que es un pasado narrativo/no experimentado). Los nombres de esta app se ajustaron usando la terminología de una gramática académica de esta misma variedad — Molina-Vital, C. (2024). <i>Huaylas (Ancash) Quechua</i>. En M. Urban (Ed.), <i>The Oxford Guide to the Languages of the Central Andes</i>. Oxford University Press — cuyo Cuadro 4.12/4.13 describe exactamente el mismo paradigma de sufijos, sufijo por sufijo. Los sufijos no cambiaron; solo la etiqueta en español.</p>
-    <div class="table-scroll" style="margin-bottom:1.2rem;">
-      <table class="paradigm" id="terminology-table">
-        <thead><tr><th>Nombre en esta app</th><th>Categoría académica (Molina-Vital 2024)</th></tr></thead>
-        <tbody id="terminology-rows"></tbody>
-      </table>
-    </div>
-    <div class="notes">
-      <div class="note"><b>Pretérito indefinido vs. Pluscuamperfecto.</b> En quechua esta no es una distinción de tiempo sino de evidencialidad: <i>-rqa</i> marca que el hablante presenció/experimentó el evento; <i>-naq</i> marca que lo sabe de forma indirecta (narrativo, "dicen que…"). Se usan las etiquetas de tiempo verbal en español más cercanas a cada uso porque es lo que pediste, pero la distinción real es esa.</div>
-      <div class="note"><b>Nominalizador actual (−nqa), no "participio imperfectivo".</b> La fuente académica señala expresamente que llamar a <i>-nqa</i> "nominalizador imperfectivo" es impreciso: el evento nominalizado puede estar en curso o ya terminado — <i>-nqa</i> no marca aspecto de forma consistente.</div>
+    <div id="ancash-notes-block">
+      <h2 class="section-title">Notas de formación</h2>
+      <div class="notes">
+        <div class="note"><b>Alargamiento en 1ª persona.</b> Donde no hay marcador de tiempo propio (Presente, Condicional simple), nuqa no toma consonante: repite la última vocal de la base. Ej. <i>miku-</i> → <i>mikuu</i> "como".</div>
+        <div class="note"><b>El Pretérito perfecto compuesto, el Pretérito imperfecto y el Pluscuamperfecto son perifrásticos.</b> Raíz + nominalizador/participio (<i>-shqa</i>, <i>-q</i>, <i>-naq</i>) + el verbo <i>kay</i> "ser/estar" conjugado en presente (kaa, kanki, kan…) — dos palabras, no una.</div>
+        <div class="note"><b>Corrección de pronunciación.</b> El Futuro, 1ª persona plural exclusiva, se escribe <i>yaashaq</i> (no <i>yashaq</i>) por cómo se pronuncia realmente.</div>
+      </div>
+
+      <h2 class="section-title">Por qué estos nombres de tiempos</h2>
+      <p class="section-note">Los sufijos vienen de un curso de quechua ancashino, pero sus nombres para los tiempos eran descriptivos, no gramaticalmente exactos (p.ej. llamar "Modo Delegatorio" a lo que es un pasado narrativo/no experimentado). Los nombres de esta app se ajustaron usando la terminología de una gramática académica de esta misma variedad — Molina-Vital, C. (2024). <i>Huaylas (Ancash) Quechua</i>. En M. Urban (Ed.), <i>The Oxford Guide to the Languages of the Central Andes</i>. Oxford University Press — cuyo Cuadro 4.12/4.13 describe exactamente el mismo paradigma de sufijos, sufijo por sufijo. Los sufijos no cambiaron; solo la etiqueta en español.</p>
+      <div class="table-scroll" style="margin-bottom:1.2rem;">
+        <table class="paradigm" id="terminology-table">
+          <thead><tr><th>Nombre en esta app</th><th>Categoría académica (Molina-Vital 2024)</th></tr></thead>
+          <tbody id="terminology-rows"></tbody>
+        </table>
+      </div>
+      <div class="notes">
+        <div class="note"><b>Pretérito indefinido vs. Pluscuamperfecto.</b> En quechua esta no es una distinción de tiempo sino de evidencialidad: <i>-rqa</i> marca que el hablante presenció/experimentó el evento; <i>-naq</i> marca que lo sabe de forma indirecta (narrativo, "dicen que…"). Se usan las etiquetas de tiempo verbal en español más cercanas a cada uso porque es lo que pediste, pero la distinción real es esa.</div>
+        <div class="note"><b>Nominalizador actual (−nqa), no "participio imperfectivo".</b> La fuente académica señala expresamente que llamar a <i>-nqa</i> "nominalizador imperfectivo" es impreciso: el evento nominalizado puede estar en curso o ya terminado — <i>-nqa</i> no marca aspecto de forma consistente.</div>
+      </div>
     </div>
 
-    <footer class="credit">
+    <div id="cusco-notes-block" hidden>
+      <h2 class="section-title">Sobre este paradigma</h2>
+      <p class="section-note">Solo 4 personas (yo, tú, él/ella, nosotros inclusivo) están tabuladas directamente para cada tiempo en la fuente académica. "Ustedes" y "ellos/ellas" se completan con la regla de pluralización que la misma fuente describe (forma de 2ª/3ª persona + -chis/-ku). "Nosotros exclusivo" (Nuqayku) solo se incluye donde la fuente lo da directamente (Presente, Futuro, Condicional) — en Presente es una forma irregular (-yku) y en Futuro es compuesta (-saq-ku), sin un patrón único que permita completar los demás tiempos con confianza, así que se dejó en blanco (—) en vez de adivinar.</p>
+    </div>
+
+    <footer class="credit" id="credit-ancash">
       Variedad: Quechua Áncash / Waras. El paradigma de sufijos (pronombres, sufijos y notas de pronunciación) viene del curso de Orlando Reyes, Yachasikuq de Quechua Ancashino; los nombres de los tiempos siguen la terminología de Molina-Vital (2024), <i>Huaylas (Ancash) Quechua</i>, en <i>The Oxford Guide to the Languages of the Central Andes</i> (Oxford University Press).
+    </footer>
+    <footer class="credit" id="credit-cusco" hidden>
+      Variedad: Quechua del Cusco. El paradigma verbal (tiempos, persona, modo) viene de Bendezú-Araujo, R. y Acurio-Palma, J. (2024), <i>Cuzco Quechua</i>, en <i>The Oxford Guide to the Languages of the Central Andes</i> (Oxford University Press), Tablas 7.6–7.13. El vocabulario viene de las listas de palabras del curso QUEC 1001/1002/1110 ("Musuq Simikuna").
     </footer>
   </section>
 </div>
@@ -554,6 +583,17 @@
 <script>
 (function(){
   "use strict";
+
+  // ---------- dialect selection ----------
+  // The whole app (verbs, pronouns, tenses, imperativo) is data-driven off
+  // one active dialect's dataset, built further below. Switching dialects
+  // just writes the choice and reloads — far lower risk than trying to
+  // rebuild every chip/render function in place for a page this size.
+  // Ancash keeps the original unprefixed storage keys (so existing
+  // progress isn't touched); Cusco gets its own namespaced keys.
+  var DIALECT = 'ancash';
+  try { DIALECT = localStorage.getItem('rimashun-dialect') || 'ancash'; } catch(e){}
+  function storageKey(base){ return DIALECT === 'ancash' ? base : (base + '-' + DIALECT); }
 
   var REPEAT = '§R§', REPEATMAN = '§RM§';
 
@@ -844,6 +884,266 @@
     return s.trim().toLowerCase().replace(/\s+/g,' ');
   }
 
+  // ---------- Cusco (Qusqu) Quechua dataset ----------
+  // Source: Bendezú-Araujo, R. & Acurio-Palma, J. (2024). "Cuzco Quechua."
+  // In M. Urban (Ed.), The Oxford Guide to the Languages of the Central
+  // Andes. Oxford University Press — Tables 7.6–7.13. Vocabulary from the
+  // user's own QUEC 1001/1002/1110 "Musuq Simikuna" course word lists.
+  //
+  // Only 4 persons are directly tabulated per tense in the source (Table
+  // 7.10: 1sg/2sg/3sg/1pl.incl). 2pl and 3pl are filled in compositionally
+  // (2sg/3sg form + -chis/-ku), a pluralization rule the source states
+  // explicitly (Table 7.6, footnote 24) and shows directly for the present
+  // tense (Table 7.7). 1pl.excl (Nuqayku) is the one person that behaves
+  // inconsistently across tenses in the source itself — present uses the
+  // irregular -yku, future the compositional -saq-ku — so it's included
+  // only where the source gives it directly (Presente, Futuro,
+  // Condicional) and left out of Pretérito experimentado/no experimentado
+  // and the periphrastic aspects, rather than guessed.
+  var PERSONS_CUSCO = [
+    {q:'Nuqa', es:'yo'},
+    {q:'Qan', es:'tú'},
+    {q:'Pay', es:'él / ella'},
+    {q:'Nuqanchis', es:'nosotros (inclusivo)'},
+    {q:'Nuqayku', es:'nosotros (exclusivo)'},
+    {q:'Qankuna', es:'ustedes'},
+    {q:'Paykuna', es:'ellos / ellas'}
+  ];
+
+  var TENSE_ORDER_CUSCO = ['presente','pasado','futuro','pasadoNoExp','habitual','progresivo','condicional'];
+  var CORE_TENSES_CUSCO = ['presente','pasado','futuro'];
+  var TENSE_GROUPS_CUSCO = [
+    {id:'basicos',   label:'Básicos', keys:['presente','pasado','futuro']},
+    {id:'comunes',   label:'Comunes', keys:['habitual','progresivo']},
+    {id:'mandato',   label:'Mandato / modalidad', keys:['imperativo','condicional']},
+    {id:'avanzadas', label:'Avanzadas', keys:['pasadoNoExp']}
+  ];
+  var IMPERATIVO_LABELS_CUSCO = {
+    1:{q:'Qan', es:'tú'},
+    2:{q:'Qankuna', es:'ustedes'},
+    3:{q:'Pay', es:'él / ella'},
+    4:{q:'Paykuna', es:'ellos / ellas'}
+  };
+
+  var TENSES_CUSCO = {
+    presente:    {label:'Presente',                    academic:'Present (unmarked)',                     suffixes:['ni','nki','n','nchis','yku','nkichis','nku'],                page:'Tables 7.7, 7.10'},
+    pasado:      {label:'Pretérito experimentado',      academic:'Experienced past −rqa',                  suffixes:['rqani','rqanki','rqan','rqanchis',null,'rqankichis','rqanku'], page:'Table 7.10'},
+    futuro:      {label:'Futuro',                       academic:'Future (fused person-tense marking)',    suffixes:['saq','nki','nqa','sun','saqku','nkichis','nqaku'],           page:'Table 7.10, §7.6.3.1.2'},
+    pasadoNoExp: {label:'Pretérito no experimentado',   academic:'Non-experienced/narrative past −sqa',    suffixes:['sqani','sqanki','sqa','sqanchis',null,'sqankichis','sqaku'],  page:'Table 7.10'},
+    habitual:    {label:'Habitual',                     academic:'Habitual aspect −q + ka-',                suffixes:['q kani','q kanki','q','q kanchis',null,'q kankichis','q ku'], page:'Table 7.11'},
+    progresivo:  {label:'Presente continuo',            academic:'Progressive aspect −sha (−chka)',         suffixes:['shani','shanki','shan','shanchis',null,'shankichis','shanku'], page:'Table 7.11'},
+    condicional: {label:'Condicional simple',           academic:'Conditional mood −man',                   suffixes:['yman','nkiman','nman','nchisman','ykuman','nkichisman','nkuman'], page:'Table 7.12'}
+  };
+
+  var IMPERATIVO_CUSCO = {
+    label:'Imperativo', page:'Table 7.13',
+    persons:[1,2,3,4],
+    suffixes:{1:'y', 2:'ychis', 3:'chun', 4:'chunku'}
+  };
+
+  var VERBS_CUSCO = [
+    {root:'ka',          es:'ser / estar'},
+    {root:'napayku',     es:'saludar'},
+    {root:'ñawincha',    es:'leer'},
+    {root:'tapu',        es:'preguntar'},
+    {root:'tinku',       es:'reunirse / encontrarse'},
+    {root:'tupa',        es:'toparse con'},
+    {root:'yachaku',     es:'aprender'},
+    {root:'yacha',       es:'saber'},
+    {root:'ati',         es:'poder'},
+    {root:'chura',       es:'poner'},
+    {root:'hamu',        es:'venir'},
+    {root:'kawsa',       es:'vivir (estar vivo)'},
+    {root:'lluqsi',      es:'salir'},
+    {root:'muna',        es:'querer / gustar'},
+    {root:'ni',          es:'decir'},
+    {root:'qu',          es:'dar'},
+    {root:'qhawa',       es:'mirar / cuidar'},
+    {root:'qhipa',       es:'quedarse'},
+    {root:'riku',        es:'ver'},
+    {root:'rima',        es:'hablar'},
+    {root:'riqsi',       es:'conocer'},
+    {root:'ri',          es:'ir'},
+    {root:'ruwa',        es:'hacer'},
+    {root:'tiya',        es:'residir / sentarse'},
+    {root:'armaku',      es:'bañarse'},
+    {root:'arma',        es:'bañar (a alguien)'},
+    {root:'asi',         es:'reír'},
+    {root:'awa',         es:'tejer'},
+    {root:'chaya',       es:'llegar'},
+    {root:"ch'uya",      es:'limpiar / purificar'},
+    {root:"hap'i",       es:'agarrar'},
+    {root:'kamari',      es:'preparar / planear'},
+    {root:'kicha',       es:'abrir'},
+    {root:'kuti',        es:'volver / regresar'},
+    {root:"llank'a",     es:'trabajar'},
+    {root:'maskha',      es:'buscar'},
+    {root:'maylli',      es:'lavar (una parte del cuerpo, comida)'},
+    {root:'michi',       es:'pastorear'},
+    {root:'mikhu',       es:'comer'},
+    {root:'musqu',       es:'soñar'},
+    {root:'picha',       es:'barrer / limpiar (la casa)'},
+    {root:'puñu',        es:'dormir'},
+    {root:'puri',        es:'caminar / viajar'},
+    {root:'qillqa',      es:'escribir'},
+    {root:'ranti',       es:'comprar'},
+    {root:"rikch'ariku", es:'despertarse'},
+    {root:'sama',        es:'descansar / respirar'},
+    {root:"siq'incha",   es:'dibujar'},
+    {root:'suyari',      es:'esperar'},
+    {root:'taki',        es:'cantar'},
+    {root:'tusu',        es:'bailar'},
+    {root:"t'aqsa",      es:'lavar (ropa)'},
+    {root:'upya',        es:'tomar / beber'},
+    {root:'uyari',       es:'escuchar'},
+    {root:'wañu',        es:'morir'},
+    {root:'waqya',       es:'llamar'},
+    {root:'watuku',      es:'visitar / extrañar'},
+    {root:"wisq'a",      es:'cerrar'},
+    {root:'yachachi',    es:'enseñar'},
+    {root:'yuyari',      es:'recordar / pensar'},
+    {root:'akulli',      es:'masticar coca'},
+    {root:'aqha',        es:'hacer chicha'},
+    {root:"hank'a",      es:'tostar'},
+    {root:"hich'a",      es:'tirar / verter'},
+    {root:'hurqu',       es:'sacar'},
+    {root:'kanka',       es:'asar'},
+    {root:'kuta',        es:'moler'},
+    {root:'macha',       es:'emborracharse'},
+    {root:"t'impu",      es:'hervir'},
+    {root:"wayk'u",      es:'cocinar'},
+    {root:'qaywi',       es:'revolver / remover'},
+    {root:'apa',         es:'llevar'},
+    {root:'asta',        es:'trasladar (cosas)'},
+    {root:'ayqi',        es:'huir / escapar'},
+    {root:'chimpa',      es:'cruzar'},
+    {root:'hayku',       es:'entrar'},
+    {root:"lat'a",       es:'gatear'},
+    {root:'muyu',        es:'girar / dar vueltas'},
+    {root:'pasa',        es:'pasar / ir'},
+    {root:'puklla',      es:'jugar'},
+    {root:"p'ita",       es:'saltar'},
+    {root:'qati',        es:'seguir'},
+    {root:'saqi',        es:'dejar'},
+    {root:'wicha',       es:'subir'},
+    {root:'yanapa',      es:'ayudar'},
+    {root:"ch'alla",     es:'rociar (ceremonialmente)'},
+    {root:'haywariku',   es:'ofrecer'},
+    {root:'puqu',        es:'madurar'},
+    {root:'phuku',       es:'soplar'},
+    {root:'tari',        es:'encontrar'},
+    {root:'uywa',        es:'criar / domesticar'},
+    {root:"wayt'a",      es:'nadar'},
+    {root:'chiri',       es:'tener frío'},
+    {root:"ch'aki",      es:'tener sed'},
+    {root:'hampi',       es:'curar'},
+    {root:"k'aha",       es:'tener fiebre'},
+    {root:'nana',        es:'doler'},
+    {root:"q'uñi",       es:'calentar(se)'},
+    {root:'rupha',       es:'arder / hacer sol'},
+    {root:'unqu',        es:'enfermarse'},
+    {root:'yarqha',      es:'tener hambre'},
+    {root:'achhuyu',     es:'acercarse'},
+    {root:'chinka',      es:'perderse / desaparecer'},
+    {root:'chiqni',      es:'odiar'},
+    {root:'kumpa',       es:'derribar / tumbar'},
+    {root:"marq'a",      es:'cargar (en brazos)'},
+    {root:'maqa',        es:'pegar / golpear'},
+    {root:'mira',        es:'reproducirse / multiplicarse'},
+    {root:'paka',        es:'esconder'},
+    {root:'panta',       es:'equivocarse'},
+    {root:'paqari',      es:'nacer / amanecer'},
+    {root:'pisiya',      es:'disminuir'},
+    {root:'qallari',     es:'empezar'},
+    {root:'rasphiya',    es:'oscurecer'},
+    {root:'tanqa',       es:'empujar'},
+    {root:'tutaya',      es:'anochecer'},
+    {root:'waqa',        es:'llorar'},
+    {root:'huqhari',     es:'levantar / recoger'},
+    {root:"t'akari",     es:'esparcir'},
+    {root:'willa',       es:'contar / avisar'},
+    {root:'allinya',     es:'mejorarse (de salud)'},
+    {root:"hayt'a",      es:'patear'},
+    {root:"hump'i",      es:'sudar'},
+    {root:'khuru',       es:'infectar'},
+    {root:'layqa',       es:'embrujar'},
+    {root:'manchara',    es:'asustarse'},
+    {root:'maqanaku',    es:'pelearse (mutuamente)'},
+    {root:'punki',       es:'hincharse'},
+    {root:"p'aki",       es:'romper'},
+    {root:"q'iwi",       es:'torcer'},
+    {root:'chikchi',     es:'granizar'},
+    {root:'para',        es:'llover'},
+    {root:'pukata',      es:'nublarse'},
+    {root:'qhasa',       es:'helar'},
+    {root:"rit'i",       es:'nevar'},
+    {root:'wayra',       es:'ventear / hacer viento'},
+    {root:'puchka',      es:'hilar'},
+    {root:'tiñi',        es:'teñir'},
+    {root:'tuku',        es:'terminar / fingir'},
+    {root:"t'ipa",       es:'tejer (a punto)'},
+    {root:'wata',        es:'amarrar'},
+    {root:'wiña',        es:'crecer'},
+    {root:"k'anti",      es:'hilar / torcer hilo'},
+    {root:'sira',        es:'coser'},
+    {root:'chinkachi',   es:'perder (algo)'},
+    {root:"p'inqa",      es:'avergonzarse'},
+    {root:'rikhuri',     es:'aparecer'},
+    {root:'puchu',       es:'sobrar'},
+    {root:'qichu',       es:'quitar / arrebatar'},
+    {root:'qunqa',       es:'olvidar'},
+    {root:'ripu',        es:'irse / partir'},
+    {root:"sayk'upu",    es:'cansarse'},
+    {root:'urma',        es:'caerse'},
+    {root:"llamp'ucha",  es:'suavizar'},
+    {root:'mallki',      es:'sembrar plantines'},
+    {root:"surk'a",      es:'cavar un surco'},
+    {root:'wanucha',     es:'fertilizar'},
+    {root:"ch'unqa",     es:'chupar'},
+    {root:"llunch'i",    es:'deslizarse'},
+    {root:'tarpu',       es:'sembrar'},
+    {root:'qupu',        es:'amontonar'}
+  ];
+  VERBS_CUSCO.forEach(function(v){ v.inf = v.root + 'y'; });
+
+  var CORE_VERB_ROOTS_CUSCO = [
+    "llank'a",'puklla','yacha','qillqa','riku','ri','rima','uyari','puñu','hamu',
+    'ranti','ruwa','mikhu','upya','muna',"p'ita",'wicha','lluqsi','kuti','taki'
+  ];
+
+  // ---------- active dialect ----------
+  var ANCASH = {
+    label:'Áncash (Waras)', hasTransitions:true,
+    PERSONS:PERSONS, TENSE_ORDER:TENSE_ORDER, CORE_TENSES:CORE_TENSES, TENSE_GROUPS:TENSE_GROUPS,
+    IMPERATIVO_LABELS:IMPERATIVO_LABELS, TENSES:TENSES, IMPERATIVO:IMPERATIVO, IMPERATIVO_SPECIAL:IMPERATIVO_SPECIAL,
+    TRANSITION_TENSES:TRANSITION_TENSES, DEFAULT_TRANSITION_INDICES:DEFAULT_TRANSITION_INDICES,
+    TRANSITIONS:TRANSITIONS, SO_PAIRS:SO_PAIRS, VERBS:VERBS, CORE_VERB_ROOTS:CORE_VERB_ROOTS
+  };
+  var CUSCO = {
+    label:'Cusco (Qusqu)', hasTransitions:false,
+    PERSONS:PERSONS_CUSCO, TENSE_ORDER:TENSE_ORDER_CUSCO, CORE_TENSES:CORE_TENSES_CUSCO, TENSE_GROUPS:TENSE_GROUPS_CUSCO,
+    IMPERATIVO_LABELS:IMPERATIVO_LABELS_CUSCO, TENSES:TENSES_CUSCO, IMPERATIVO:IMPERATIVO_CUSCO, IMPERATIVO_SPECIAL:[],
+    TRANSITION_TENSES:[], DEFAULT_TRANSITION_INDICES:[],
+    TRANSITIONS:{}, SO_PAIRS:[], VERBS:VERBS_CUSCO, CORE_VERB_ROOTS:CORE_VERB_ROOTS_CUSCO
+  };
+  var DIALECT_DATA = {ancash:ANCASH, cusco:CUSCO};
+  var ACTIVE = DIALECT_DATA[DIALECT] || ANCASH;
+
+  PERSONS = ACTIVE.PERSONS;
+  TENSE_ORDER = ACTIVE.TENSE_ORDER;
+  CORE_TENSES = ACTIVE.CORE_TENSES;
+  TENSE_GROUPS = ACTIVE.TENSE_GROUPS;
+  IMPERATIVO_LABELS = ACTIVE.IMPERATIVO_LABELS;
+  TENSES = ACTIVE.TENSES;
+  IMPERATIVO = ACTIVE.IMPERATIVO;
+  IMPERATIVO_SPECIAL = ACTIVE.IMPERATIVO_SPECIAL;
+  TRANSITION_TENSES = ACTIVE.TRANSITION_TENSES;
+  DEFAULT_TRANSITION_INDICES = ACTIVE.DEFAULT_TRANSITION_INDICES;
+  TRANSITIONS = ACTIVE.TRANSITIONS;
+  SO_PAIRS = ACTIVE.SO_PAIRS;
+  VERBS = ACTIVE.VERBS;
+  CORE_VERB_ROOTS = ACTIVE.CORE_VERB_ROOTS;
+
   // ---------- persisted state ----------
   // "Modo" (state.mode) is exclusive: 'subject' practices plain subject-only
   // conjugation, 'transition' practices only subject→object forms. This
@@ -851,7 +1151,7 @@
   // questions on top of subject questions instead of switching between them.
   var state = {selectedVerbs:coreVerbIndices(), selectedTenses:CORE_TENSES.slice(), mode:'subject', selectedTransitions:DEFAULT_TRANSITION_INDICES.slice(), score:{correct:0,total:0}, streak:0};
   try {
-    var saved = JSON.parse(localStorage.getItem('rimashun-state') || 'null');
+    var saved = JSON.parse(localStorage.getItem(storageKey('rimashun-state')) || 'null');
     if (saved && Array.isArray(saved.selectedVerbs) && saved.selectedVerbs.length){
       state.selectedVerbs = saved.selectedVerbs;
     }
@@ -872,6 +1172,7 @@
   // A tense selected under one mode may not apply under the other (e.g.
   // "Imperativo" has no subject→object form) — keep the selection valid.
   function ensureValidTenseSelection(){
+    if (!ACTIVE.hasTransitions){ state.mode = 'subject'; }
     if (state.mode === 'transition'){
       var valid = state.selectedTenses.filter(function(tk){ return TRANSITION_TENSES.indexOf(tk) > -1; });
       state.selectedTenses = valid.length ? valid : ['presente'];
@@ -880,7 +1181,7 @@
   ensureValidTenseSelection();
 
   function persist(){
-    try { localStorage.setItem('rimashun-state', JSON.stringify({selectedVerbs:state.selectedVerbs, selectedTenses:state.selectedTenses, mode:state.mode, selectedTransitions:state.selectedTransitions})); }
+    try { localStorage.setItem(storageKey('rimashun-state'), JSON.stringify({selectedVerbs:state.selectedVerbs, selectedTenses:state.selectedTenses, mode:state.mode, selectedTransitions:state.selectedTransitions})); }
     catch(e){}
   }
 
@@ -904,13 +1205,13 @@
   var ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
   var srs = {};
-  try { srs = JSON.parse(localStorage.getItem('rimashun-srs') || '{}') || {}; } catch(e){ srs = {}; }
+  try { srs = JSON.parse(localStorage.getItem(storageKey('rimashun-srs')) || '{}') || {}; } catch(e){ srs = {}; }
 
   var qCounter = 0;
-  try { qCounter = parseInt(localStorage.getItem('rimashun-qcounter') || '0', 10) || 0; } catch(e){}
+  try { qCounter = parseInt(localStorage.getItem(storageKey('rimashun-qcounter')) || '0', 10) || 0; } catch(e){}
   function bumpCounter(){
     qCounter++;
-    try { localStorage.setItem('rimashun-qcounter', String(qCounter)); } catch(e){}
+    try { localStorage.setItem(storageKey('rimashun-qcounter'), String(qCounter)); } catch(e){}
   }
 
   function srsKey(question){
@@ -930,7 +1231,7 @@
   function randInt(min, max){ return min + Math.floor(Math.random() * (max - min + 1)); }
 
   function persistSrs(){
-    try { localStorage.setItem('rimashun-srs', JSON.stringify(srs)); } catch(e){}
+    try { localStorage.setItem(storageKey('rimashun-srs'), JSON.stringify(srs)); } catch(e){}
   }
 
   function srsRecordWrong(question){
@@ -1052,6 +1353,7 @@
             });
           } else {
             for (var p = 0; p < 7; p++){
+              if (TENSES[tk].suffixes[p] == null) continue;
               var key = verb.root + '|' + tk + '|' + p;
               pool.push({kind:'subject', verbIdx:vi, tenseKey:tk, personIdx:p, key:key, due:isDue(srs[key])});
             }
@@ -1073,6 +1375,33 @@
 
     return working[Math.floor(Math.random() * working.length)];
   }
+
+  // ---------- dialect switcher ----------
+  // Switching dialects reloads the page with the new choice persisted — see
+  // the DIALECT/storageKey setup at the top of this script for why.
+  (function(){
+    var otherDialect = DIALECT === 'ancash' ? 'cusco' : 'ancash';
+    var otherLabel = DIALECT_DATA[otherDialect].label;
+    document.getElementById('dialect-name').textContent = ACTIVE.label;
+    var btn = document.getElementById('dialect-switch-btn');
+    btn.textContent = 'Cambiar a ' + otherLabel;
+    btn.addEventListener('click', function(){
+      try { localStorage.setItem('rimashun-dialect', otherDialect); } catch(e){}
+      location.reload();
+    });
+
+    var isCusco = DIALECT === 'cusco';
+    document.getElementById('transitions-block').hidden = !ACTIVE.hasTransitions;
+    document.getElementById('mode-transition').hidden = !ACTIVE.hasTransitions;
+    document.getElementById('special-block').hidden = ACTIVE.IMPERATIVO_SPECIAL ? ACTIVE.IMPERATIVO_SPECIAL.length === 0 : true;
+    document.getElementById('ancash-notes-block').hidden = isCusco;
+    document.getElementById('cusco-notes-block').hidden = !isCusco;
+    document.getElementById('credit-ancash').hidden = isCusco;
+    document.getElementById('credit-cusco').hidden = !isCusco;
+    document.getElementById('imperativo-note').textContent = isCusco
+      ? 'Solo se tabulan directamente 2ª y 3ª persona (Tabla 7.13); no hay una forma de "nosotros inclusivo" (exhortativo) atestiguada limpiamente en la fuente.'
+      : 'Página 20. Solo existe para 2ª y 3ª persona y para "nosotros inclusivo" — no hay imperativo de nuqa.';
+  })();
 
   // ---------- tabs ----------
   var tabPractice = document.getElementById('tab-practice');
@@ -1350,7 +1679,7 @@
 
   var daily = {date: todayStr(), count: 0, goal: null};
   try {
-    var savedDaily = JSON.parse(localStorage.getItem('rimashun-daily') || 'null');
+    var savedDaily = JSON.parse(localStorage.getItem(storageKey('rimashun-daily')) || 'null');
     if (savedDaily && savedDaily.date === daily.date && typeof savedDaily.count === 'number' && typeof savedDaily.goal === 'number'){
       daily.count = savedDaily.count;
       daily.goal = savedDaily.goal;
@@ -1359,7 +1688,7 @@
   if (daily.goal === null){ daily.goal = computeDailyTarget(); }
 
   function persistDaily(){
-    try { localStorage.setItem('rimashun-daily', JSON.stringify(daily)); } catch(e){}
+    try { localStorage.setItem(storageKey('rimashun-daily'), JSON.stringify(daily)); } catch(e){}
   }
 
   var elGoalInline = document.getElementById('goal-inline');
@@ -1629,6 +1958,7 @@
       html += '<tr><th>' + p.q + '</th>';
       TENSE_ORDER.forEach(function(key){
         var suf = TENSES[key].suffixes[personIdx];
+        if (suf == null){ html += '<td class="cell-na">—</td>'; return; }
         var c = conjugate(verb.root, suf);
         var display = (suf === REPEAT || suf === REPEATMAN) ? '(' + c.full + ')' : c.full;
         html += '<td>' + display + '</td>';
@@ -1663,14 +1993,16 @@
   function renderImperativo(){
     var verb = VERBS[refVerbIdx];
     var box = document.getElementById('imperativo-box');
-    var labels = {1:'Qam (tú)', 2:'Pay (él/ella)', 3:'Nuqantsik (nosotros)'};
     var html = '';
     IMPERATIVO.persons.forEach(function(pIdx){
       var c = conjugate(verb.root, IMPERATIVO.suffixes[pIdx]);
-      html += '<div class="imp-item"><div class="who">' + labels[pIdx] + '</div><div class="form">¡' + c.full + '!</div></div>';
+      var lbl = IMPERATIVO_LABELS[pIdx];
+      html += '<div class="imp-item"><div class="who">' + lbl.q + ' (' + lbl.es + ')</div><div class="form">¡' + c.full + '!</div></div>';
     });
     box.innerHTML = html;
 
+    var specialBlock = document.getElementById('special-block');
+    if (specialBlock) specialBlock.hidden = IMPERATIVO_SPECIAL.length === 0;
     var list = document.getElementById('special-list');
     list.innerHTML = IMPERATIVO_SPECIAL.map(function(s){
       var c = conjugate(verb.root, s.suf);
