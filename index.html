@@ -2,7 +2,11 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Yachashaq">
 <title>Yachashaq</title>
 <style>
   :root{
@@ -208,8 +212,11 @@
   .hint-line{font-size:.875rem;color:var(--indigo);text-align:center;font-weight:600;margin-bottom:.5rem;}
   .hint-line[hidden]{display:none;}
 
-  .answer-row{margin-top:.3rem;}
+  .answer-row{margin-top:.3rem;display:flex;}
+  .answer-field{position:relative;flex:1;min-width:0;}
   #answer{
+    position:relative;
+    z-index:1;
     width:100%;
     font-family:var(--font-body);
     font-weight:500;
@@ -219,7 +226,8 @@
     border-radius:10px;
     border:1.5px solid var(--border);
     background:var(--bg);
-    color:var(--ink);
+    color:transparent;
+    caret-color:var(--ink);
     text-align:center;
     transition:border-color .18s ease, background-color .18s ease;
   }
@@ -227,7 +235,26 @@
   #answer:focus{outline:none;border-color:var(--accent);}
   @media (prefers-reduced-motion: reduce){ #answer{transition:none;} }
   #answer.correct{border-color:var(--good);background:var(--good-soft);}
-  #answer.incorrect{border-color:var(--bad);background:var(--bad-soft);}
+  .answer-overlay{
+    position:absolute;
+    inset:0;
+    z-index:2;
+    pointer-events:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:.85rem 1rem;
+    font-family:var(--font-body);
+    font-weight:500;
+    font-size:1.25rem;
+    line-height:1.4;
+    border:1.5px solid transparent;
+    border-radius:10px;
+    white-space:pre;
+    overflow:hidden;
+  }
+  .answer-overlay .ch-ok{color:var(--ink);}
+  .answer-overlay .ch-bad{color:var(--bad);}
 
   .hint-btn{
     display:block;margin:.65rem auto 0;
@@ -239,29 +266,30 @@
   .hint-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
   .hint-btn[hidden]{display:none;}
 
-  button.primary.check-btn{
-    display:block;width:100%;margin-top:1rem;
-    font-family:var(--font-body);font-weight:700;font-size:1rem;
-    background:var(--accent);color:#fff;border:none;
-    border-radius:10px;padding:.95rem 1rem;cursor:pointer;
+  .rate-row{
+    text-align:center;
+    margin-top:1rem;
+    animation:rate-in .18s ease-out;
   }
-  button.primary.check-btn:hover{background:var(--accent-strong);}
-  button.primary.check-btn:focus-visible{outline:2px solid var(--accent-strong);outline-offset:2px;}
-
-  .feedback-panel{text-align:center;margin-top:1.3rem;animation:rate-in .18s ease-out;}
-  .feedback-panel[hidden]{display:none;}
+  .rate-row[hidden]{display:none;}
   @keyframes rate-in{ from{opacity:0;transform:translateY(3px);} to{opacity:1;transform:translateY(0);} }
-  @media (prefers-reduced-motion: reduce){ .feedback-panel{animation:none;} }
-  .feedback-icon{font-size:1.9rem;font-weight:700;line-height:1;margin-bottom:.15rem;}
-  .feedback-icon.good{color:var(--good);}
-  .feedback-icon.bad{color:var(--bad);}
-  .feedback-verdict{font-size:1.0625rem;font-weight:700;margin-bottom:.5rem;}
-  .feedback-verdict.good{color:var(--good);}
-  .feedback-verdict.bad{color:var(--bad);}
-  .feedback-answer{font-size:.9375rem;color:var(--ink-dim);margin-bottom:.35rem;}
-  .feedback-morph{font-family:var(--font-mono);font-size:1.2rem;}
-  .feedback-morph .root{color:var(--ink-dim);}
-  .feedback-morph .suf{color:var(--accent-strong);font-weight:700;}
+  @media (prefers-reduced-motion: reduce){ .rate-row{animation:none;} }
+  .rate-morph{font-family:var(--font-mono);font-size:1.05rem;margin-bottom:.7rem;}
+  .rate-morph .root{color:var(--ink-dim);}
+  .rate-morph .suf{color:var(--accent-strong);font-weight:700;}
+  .rate-label{font-size:.875rem;color:var(--ink-dim);margin-bottom:.6rem;}
+  .rate-buttons{display:flex;gap:.6rem;justify-content:center;}
+  .rate-btn{
+    flex:1;max-width:220px;
+    font-family:var(--font-body);font-weight:700;font-size:.9375rem;
+    border-radius:10px;padding:.75rem 1rem;cursor:pointer;
+    border:1.5px solid var(--border);background:var(--surface);color:var(--ink);
+  }
+  .rate-btn.hard{border-color:var(--bad);color:var(--bad);}
+  .rate-btn.hard:hover{background:var(--bad-soft);}
+  .rate-btn.easy{border-color:var(--good);color:var(--good);}
+  .rate-btn.easy:hover{background:var(--good-soft);}
+  .rate-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
   .quiz-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:1.6rem;}
   .stats{font-family:var(--font-mono);font-size:.8125rem;color:var(--ink-dim);font-variant-numeric:tabular-nums;}
@@ -396,18 +424,21 @@
       <div class="hint-line" id="hint-line" hidden></div>
 
       <div class="answer-row">
-        <input id="answer" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="escribe la forma en quechua…">
+        <div class="answer-field">
+          <input id="answer" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="escribe la forma en quechua…">
+          <div class="answer-overlay" id="answer-overlay" aria-hidden="true"></div>
+        </div>
       </div>
       <button class="hint-btn" id="hint-btn" type="button" title="Revelar la siguiente letra">Pista</button>
 
-      <div class="feedback-panel" id="feedback-panel" hidden>
-        <div class="feedback-icon" id="feedback-icon"></div>
-        <div class="feedback-verdict" id="feedback-verdict"></div>
-        <div class="feedback-answer" id="feedback-answer" hidden></div>
-        <div class="feedback-morph" id="feedback-morph"></div>
+      <div class="rate-row" id="rate-row" hidden>
+        <div class="rate-morph" id="rate-morph"></div>
+        <div class="rate-label">¿Qué tan fácil te resultó?</div>
+        <div class="rate-buttons">
+          <button class="rate-btn hard" id="hard-btn">Difícil</button>
+          <button class="rate-btn easy" id="easy-btn">Fácil</button>
+        </div>
       </div>
-
-      <button class="primary check-btn" id="check-btn">Comprobar</button>
 
       <div class="quiz-bottom">
         <div class="stats"><b id="score-correct">0</b>/<span id="score-total">0</span> correctas · racha <b id="streak">0</b></div>
@@ -800,7 +831,7 @@
   }
 
   function freshRecord(){
-    return {seen:0, correct:0, incorrect:0, consecutiveWrong:0, dayStage:-1, dueAt:null, dueAtCount:null, hint:false};
+    return {seen:0, easy:0, hard:0, correct:0, incorrect:0, consecutiveWrong:0, dayStage:-1, dueAt:null, dueAtCount:null, hint:false};
   }
 
   function randInt(min, max){ return min + Math.floor(Math.random() * (max - min + 1)); }
@@ -827,11 +858,13 @@
     return rec;
   }
 
-  function srsRecordCorrect(question){
+  function srsRecordCorrect(question, rating){
     var key = srsKey(question);
     var rec = srs[key] || freshRecord();
     rec.seen++;
+    rec[rating]++;
     rec.correct++;
+    rec.last = rating;
     rec.lastOutcome = 'correct';
     rec.lastAt = Date.now();
     rec.hint = false;
@@ -840,25 +873,30 @@
     rec.consecutiveWrong = 0;
 
     if (hadError || rec.dayStage < 0){
-      // first clean correct, or correct right after a miss this session:
-      // requeue later in the same session before graduating to day-based review
-      rec.dayStage = hadError ? -1 : 0;
-      if (hadError){
+      if (rating === 'hard'){
+        // still shaky — keep it in the same-session regime rather than graduating
+        rec.dayStage = -1;
         rec.dueAt = null;
         rec.dueAtCount = qCounter + randInt(10, 20);
       } else {
+        rec.dayStage = 0;
         rec.dueAtCount = null;
         rec.dueAt = Date.now() + DAY_INTERVALS[0] * ONE_DAY_MS;
       }
     } else {
-      // already on the day ladder — each further correct advances it
-      rec.dayStage++;
-      var idx = Math.min(rec.dayStage, DAY_INTERVALS.length - 1);
-      var d = DAY_INTERVALS[idx];
-      if (rec.dayStage >= DAY_INTERVALS.length){
-        d = Math.min(180, 60 * Math.pow(1.5, rec.dayStage - (DAY_INTERVALS.length - 1)));
+      // already on the day ladder
+      if (rating === 'hard'){
+        var days = DAY_INTERVALS[Math.min(rec.dayStage, DAY_INTERVALS.length - 1)];
+        rec.dueAt = Date.now() + days * ONE_DAY_MS;
+      } else {
+        rec.dayStage++;
+        var idx = Math.min(rec.dayStage, DAY_INTERVALS.length - 1);
+        var d = DAY_INTERVALS[idx];
+        if (rec.dayStage >= DAY_INTERVALS.length){
+          d = Math.min(180, 60 * Math.pow(1.5, rec.dayStage - (DAY_INTERVALS.length - 1)));
+        }
+        rec.dueAt = Date.now() + d * ONE_DAY_MS;
       }
-      rec.dueAt = Date.now() + d * ONE_DAY_MS;
       rec.dueAtCount = null;
     }
 
@@ -1162,19 +1200,51 @@
   var elVerbGloss = document.getElementById('verb-gloss');
   var elPersonQ = document.getElementById('person-q');
   var elAnswer = document.getElementById('answer');
+  var elOverlay = document.getElementById('answer-overlay');
   var elHistoryHint = document.getElementById('history-hint');
   var elHintLine = document.getElementById('hint-line');
   var elHintBtn = document.getElementById('hint-btn');
-  var elCheckBtn = document.getElementById('check-btn');
-  var elFeedbackPanel = document.getElementById('feedback-panel');
-  var elFeedbackIcon = document.getElementById('feedback-icon');
-  var elFeedbackVerdict = document.getElementById('feedback-verdict');
-  var elFeedbackAnswer = document.getElementById('feedback-answer');
-  var elFeedbackMorph = document.getElementById('feedback-morph');
+  var elRateRow = document.getElementById('rate-row');
+  var elRateMorph = document.getElementById('rate-morph');
+  var elHardBtn = document.getElementById('hard-btn');
+  var elEasyBtn = document.getElementById('easy-btn');
   var elNoSeBtn = document.getElementById('no-se-btn');
   var elScoreCorrect = document.getElementById('score-correct');
   var elScoreTotal = document.getElementById('score-total');
   var elStreak = document.getElementById('streak');
+
+  function escapeHtml(ch){
+    if (ch === '&') return '&amp;';
+    if (ch === '<') return '&lt;';
+    if (ch === '>') return '&gt;';
+    return ch;
+  }
+
+  // Colors each typed letter green/red against the target as you type, and
+  // reveals the Fácil/Difícil row the instant the whole answer matches.
+  function renderLiveOverlay(){
+    if (answered || !q){ return; }
+    var typed = elAnswer.value;
+    var target = q.answer.full;
+    var html = '';
+    for (var i = 0; i < typed.length; i++){
+      var ch = typed[i];
+      var exp = target[i];
+      var ok = exp !== undefined && ch.toLowerCase() === exp.toLowerCase();
+      html += '<span class="' + (ok ? 'ch-ok' : 'ch-bad') + '">' + escapeHtml(ch) + '</span>';
+    }
+    elOverlay.innerHTML = html;
+
+    var isMatch = typed.length > 0 && normalize(typed) === normalize(target);
+    elAnswer.classList.toggle('correct', isMatch);
+    elHintBtn.hidden = isMatch;
+    if (isMatch && elRateRow.hidden){
+      elRateMorph.innerHTML = '<span class="root">' + q.answer.root + '</span><span class="suf">' + q.answer.suffix + '</span>';
+      elRateRow.hidden = false;
+    } else if (!isMatch){
+      elRateRow.hidden = true;
+    }
+  }
 
   // Reveals one more correct letter on demand, independent of the SRS
   // wrong tracking — purely a typing assist, doesn't count as an attempt.
@@ -1191,6 +1261,7 @@
     elAnswer.value = target.slice(0, newLen);
     elAnswer.focus();
     elAnswer.setSelectionRange(elAnswer.value.length, elAnswer.value.length);
+    renderLiveOverlay();
   }
 
   function newQuestion(){
@@ -1198,10 +1269,10 @@
     elAnswer.value = '';
     elAnswer.className = '';
     elAnswer.readOnly = false;
+    elOverlay.innerHTML = '';
     elHintBtn.hidden = false;
     elNoSeBtn.hidden = false;
-    elFeedbackPanel.hidden = true;
-    elCheckBtn.textContent = 'Comprobar';
+    elRateRow.hidden = true;
     bumpCounter();
 
     var choice = pickQuestion();
@@ -1233,6 +1304,7 @@
       var due = dueDescription(rec);
       elHistoryHint.hidden = false;
       elHistoryHint.textContent = 'Ya la practicaste ' + rec.seen + (rec.seen === 1 ? ' vez' : ' veces') +
+        (rec.easy || rec.hard ? ' · ' + (rec.easy || 0) + ' fácil' + ((rec.easy || 0) === 1 ? '' : 'es') + ', ' + (rec.hard || 0) + ' difícil' + ((rec.hard || 0) === 1 ? '' : 'es') : '') +
         (due ? ' · ' + due : '');
     } else {
       elHistoryHint.hidden = true;
@@ -1248,62 +1320,40 @@
     elAnswer.focus();
   }
 
-  function showFeedback(isRight){
-    var breakdown = '<span class="root">' + q.answer.root + '</span><span class="suf">' + q.answer.suffix + '</span>';
-    if (isRight){
-      elFeedbackIcon.textContent = '✓';
-      elFeedbackIcon.className = 'feedback-icon good';
-      elFeedbackVerdict.textContent = '¡Correcto!';
-      elFeedbackVerdict.className = 'feedback-verdict good';
-      elFeedbackAnswer.hidden = true;
-    } else {
-      elFeedbackIcon.textContent = '×';
-      elFeedbackIcon.className = 'feedback-icon bad';
-      elFeedbackVerdict.textContent = 'Casi.';
-      elFeedbackVerdict.className = 'feedback-verdict bad';
-      elFeedbackAnswer.hidden = false;
-      elFeedbackAnswer.textContent = 'Respuesta: ' + q.answer.full;
-    }
-    elFeedbackMorph.innerHTML = breakdown;
-    elFeedbackPanel.hidden = false;
-  }
-
-  function finalizeAnswer(isRight){
+  function rateAnswer(rating){
+    if (answered){ return; }
     answered = true;
-    elAnswer.readOnly = true;
-    elAnswer.className = isRight ? 'correct' : 'incorrect';
-    elHintBtn.hidden = true;
-    elNoSeBtn.hidden = true;
 
     state.score.total++;
-    if (isRight){ state.score.correct++; state.streak++; srsRecordCorrect(q); }
-    else { state.streak = 0; srsRecordWrong(q); }
+    state.score.correct++;
+    state.streak++;
     elScoreCorrect.textContent = state.score.correct;
     elScoreTotal.textContent = state.score.total;
     elStreak.textContent = state.streak;
+
+    srsRecordCorrect(q, rating);
     recordDailyProgress();
 
-    showFeedback(isRight);
-    elCheckBtn.textContent = isRight ? 'Siguiente →' : 'Continuar →';
-  }
-
-  function checkAnswer(){
-    if (answered){ newQuestion(); return; }
-    var given = normalize(elAnswer.value);
-    var target = normalize(q.answer.full);
-    finalizeAnswer(given === target && given.length > 0);
+    newQuestion();
   }
 
   function giveUp(){
     if (!q || answered) return;
-    finalizeAnswer(false);
+    srsRecordWrong(q);
+    state.score.total++;
+    state.streak = 0;
+    elScoreTotal.textContent = state.score.total;
+    elStreak.textContent = state.streak;
+    newQuestion();
   }
 
   elHintBtn.addEventListener('click', useHint);
-  elCheckBtn.addEventListener('click', checkAnswer);
+  elHardBtn.addEventListener('click', function(){ rateAnswer('hard'); });
+  elEasyBtn.addEventListener('click', function(){ rateAnswer('easy'); });
   elNoSeBtn.addEventListener('click', giveUp);
+  elAnswer.addEventListener('input', renderLiveOverlay);
   elAnswer.addEventListener('keydown', function(e){
-    if (e.key === 'Enter'){ e.preventDefault(); checkAnswer(); }
+    if (e.key === 'Enter' && !elRateRow.hidden && !answered){ e.preventDefault(); rateAnswer('easy'); }
   });
 
   newQuestion();
